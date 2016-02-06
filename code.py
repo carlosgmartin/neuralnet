@@ -55,13 +55,13 @@ def xor_example():
 		net.feedforward([1, 1])
 		net.backpropagate([0])
 	net.feedforward([0, 0])
-	print(net.inputs[-1])
+	print net.inputs[-1]
 	net.feedforward([0, 1])
-	print(net.inputs[-1])
+	print net.inputs[-1]
 	net.feedforward([1, 0])
-	print(net.inputs[-1])
+	print net.inputs[-1]
 	net.feedforward([1, 1])
-	print(net.inputs[-1])
+	print net.inputs[-1]
 
 def identity_example():
 	net = Neuralnet([1, 1, 1])
@@ -70,7 +70,7 @@ def identity_example():
 		net.feedforward([x])
 		net.backpropagate([x])
 	net.feedforward([.25])
-	print(net.inputs[-1])
+	print net.inputs[-1]
 
 
 
@@ -79,8 +79,22 @@ for i in range(10):
 	with open('data/data' + str(i), 'r') as f:
 		data.append(np.fromfile(f, dtype=np.uint8).reshape(1000, 28, 28))
 
-plt.imshow(data[8][99], cmap='gray', vmin=0, vmax=255, interpolation='none')
-plt.show()
+# plt.imshow(data[8][99], cmap='gray', vmin=0, vmax=255, interpolation='none')
+# plt.show()
+
+net = Neuralnet([28 * 28, 28, 10])
+for sample in range(1000):
+	for digit in range(10):
+		inputs = data[digit][sample].flatten()
+		net.feedforward(inputs)
+		targets = np.zeros(10)
+		targets[digit] = 1
+		net.backpropagate(targets)
+
+net.feedforward(data[4][99].flatten())
+print net.inputs[-1]
+print np.argmax(net.inputs[-1])
+
 
 
 
