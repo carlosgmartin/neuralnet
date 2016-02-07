@@ -1,5 +1,8 @@
+from __future__ import division
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image
 
 class Neuralnet:
 	def sigmoid(self, x):
@@ -74,24 +77,45 @@ def identity_example():
 
 
 
+# Create neural network that accepts a 28 by 28 pixel array
+net = Neuralnet([28 * 28, 28, 10])
+
+# Extract training data from files
 data = []
 for i in range(10):
 	with open('digits/digits' + str(i), 'r') as f:
 		data.append(np.fromfile(f, dtype=np.uint8).reshape(1000, 28, 28))
 
-net = Neuralnet([28 * 28, 28, 10])
-for sample in range(1000):
-	for digit in range(10):
-		inputs = data[digit][sample].flatten()
-		net.feedforward(inputs)
-		targets = np.zeros(10)
-		targets[digit] = 1
-		net.backpropagate(targets)
+# Train neural network using training data
+for epoch in range(10):
+	for sample in np.random.permutation(1000):
+		for digit in np.random.permutation(10):
+			inputs = data[digit][sample].flatten()
+			net.feedforward(inputs)
+			targets = np.zeros(10)
+			targets[digit] = 1
+			net.backpropagate(targets)
+	print 'Epoch ' + str(epoch) + ' complete'
 
-image = data[8][99]
+if len(sys.argv) > 1:
+	# Use image specified by user
+	image = Image.open(sys.argv[1])
+	image = image.resize((28, 28))
+	image = np.asarray(image)
+	image = image[:, :, 0]
+else:
+	# Use random image from training data
+	digit = np.random.randint(10)
+	sample = np.random.randint(1000)
+	image = data[digit][sample]
+
+# Show image being fed into neural network
 plt.imshow(image, cmap='gray', vmin=0, vmax=255, interpolation='nearest')
 plt.show()
 
+# Feed image into neural network
 net.feedforward(image.flatten())
+
+# Print neural network outputs and classification
 print net.inputs[-1]
 print np.argmax(net.inputs[-1])
